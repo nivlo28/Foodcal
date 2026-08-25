@@ -20,6 +20,7 @@ export type Food = {
   fat: number;
   mealType: MealType;
   date: string;
+  image?: string;
 };
 
 export type WaterEntry = {
@@ -35,10 +36,17 @@ type AddFoodData = {
   carbs?: number;
   fat?: number;
   mealType: MealType;
+  image?: string;
 };
 
 type FoodContextType = {
   foods: Food[];
+
+  profile: Record<string, any>;
+
+  calorieGoal: number;
+  proteinGoal: number;
+  waterGoal: number;
 
   selectedDate: Date;
   setSelectedDate: (date: Date) => void;
@@ -57,28 +65,42 @@ type FoodContextType = {
 
   waterEntries: WaterEntry[];
   selectedDayWater: number;
+
   addWater: (amount: number) => void;
   removeWater: (id: string) => void;
 };
-
-const FoodContext = createContext<FoodContextType | undefined>(
-  undefined
-);
+const FoodContext =
+  createContext<FoodContextType | undefined>(
+    undefined
+  );
 
 type FoodProviderProps = {
   children: ReactNode;
 };
 
-export function FoodProvider({ children }: FoodProviderProps) {
-  const [foods, setFoods] = useState<Food[]>([]);
-
-  const [waterEntries, setWaterEntries] = useState<
-    WaterEntry[]
-  >([]);
-
-  const [selectedDate, setSelectedDate] = useState(
-    new Date()
+export function FoodProvider({
+  children,
+}: FoodProviderProps) {
+  const [foods, setFoods] = useState<Food[]>(
+    []
   );
+
+  const [waterEntries, setWaterEntries] =
+    useState<WaterEntry[]>([]);
+
+  const [selectedDate, setSelectedDate] =
+    useState(new Date());
+
+    const profile = {
+      name: '',
+      age: 18,
+      height: 175,
+      weight: 153.3,
+   };
+
+   const calorieGoal = 2400;
+   const proteinGoal = 180;
+   const waterGoal = 2500;
 
   // =========================
   // COMIDAS
@@ -86,14 +108,17 @@ export function FoodProvider({ children }: FoodProviderProps) {
 
   const addFood = (data: AddFoodData) => {
     const newFood: Food = {
-      id: Date.now().toString(),
+      id:
+        Date.now().toString(),
       name: data.name,
       calories: data.calories,
       protein: data.protein ?? 0,
       carbs: data.carbs ?? 0,
       fat: data.fat ?? 0,
       mealType: data.mealType,
-      date: new Date().toISOString(),
+      date:
+        new Date().toISOString(),
+      image: data.image,
     };
 
     setFoods((currentFoods) => [
@@ -104,7 +129,9 @@ export function FoodProvider({ children }: FoodProviderProps) {
 
   const removeFood = (id: string) => {
     setFoods((currentFoods) =>
-      currentFoods.filter((food) => food.id !== id)
+      currentFoods.filter(
+        (food) => food.id !== id
+      )
     );
   };
 
@@ -117,9 +144,12 @@ export function FoodProvider({ children }: FoodProviderProps) {
     date2: Date
   ) => {
     return (
-      date1.getFullYear() === date2.getFullYear() &&
-      date1.getMonth() === date2.getMonth() &&
-      date1.getDate() === date2.getDate()
+      date1.getFullYear() ===
+        date2.getFullYear() &&
+      date1.getMonth() ===
+        date2.getMonth() &&
+      date1.getDate() ===
+        date2.getDate()
     );
   };
 
@@ -127,82 +157,102 @@ export function FoodProvider({ children }: FoodProviderProps) {
   // COMIDAS DEL DÍA
   // =========================
 
-  const selectedDayFoods = foods.filter((food) =>
-    isSameDay(
-      new Date(food.date),
-      selectedDate
-    )
-  );
+  const selectedDayFoods =
+    foods.filter((food) =>
+      isSameDay(
+        new Date(food.date),
+        selectedDate
+      )
+    );
 
   const selectedDayCalories =
     selectedDayFoods.reduce(
-      (total, food) => total + food.calories,
+      (total, food) =>
+        total + food.calories,
       0
     );
 
   const selectedDayProtein =
     selectedDayFoods.reduce(
-      (total, food) => total + food.protein,
+      (total, food) =>
+        total + food.protein,
       0
     );
 
   const selectedDayCarbs =
     selectedDayFoods.reduce(
-      (total, food) => total + food.carbs,
+      (total, food) =>
+        total + food.carbs,
       0
     );
 
   const selectedDayFat =
     selectedDayFoods.reduce(
-      (total, food) => total + food.fat,
+      (total, food) =>
+        total + food.fat,
       0
     );
 
-  const totalCalories = foods.reduce(
-    (total, food) => total + food.calories,
-    0
-  );
+  const totalCalories =
+    foods.reduce(
+      (total, food) =>
+        total + food.calories,
+      0
+    );
 
   // =========================
   // AGUA
   // =========================
 
-  const addWater = (amount: number) => {
+  const addWater = (
+    amount: number
+  ) => {
     if (amount <= 0) {
       return;
     }
 
-    const newWaterEntry: WaterEntry = {
-      id: Date.now().toString(),
-      amount,
-      date: new Date().toISOString(),
-    };
+    const newWaterEntry: WaterEntry =
+      {
+        id:
+          Date.now().toString(),
+        amount,
+        date:
+          new Date().toISOString(),
+      };
 
-    setWaterEntries((currentEntries) => [
-      ...currentEntries,
-      newWaterEntry,
-    ]);
-  };
-
-  const removeWater = (id: string) => {
-    setWaterEntries((currentEntries) =>
-      currentEntries.filter(
-        (entry) => entry.id !== id
-      )
+    setWaterEntries(
+      (currentEntries) => [
+        ...currentEntries,
+        newWaterEntry,
+      ]
     );
   };
 
-  const selectedDayWater = waterEntries
-    .filter((entry) =>
-      isSameDay(
-        new Date(entry.date),
-        selectedDate
-      )
-    )
-    .reduce(
-      (total, entry) => total + entry.amount,
-      0
+  const removeWater = (
+    id: string
+  ) => {
+    setWaterEntries(
+      (currentEntries) =>
+        currentEntries.filter(
+          (entry) =>
+            entry.id !== id
+        )
     );
+  };
+
+  const selectedDayWater =
+    waterEntries
+      .filter((entry) =>
+        isSameDay(
+          new Date(entry.date),
+          selectedDate
+        )
+      )
+      .reduce(
+        (total, entry) =>
+          total + entry.amount,
+        0
+      );
 
   // =========================
   // PROVIDER
@@ -211,28 +261,34 @@ export function FoodProvider({ children }: FoodProviderProps) {
   return (
     <FoodContext.Provider
       value={{
-        foods,
+  foods,
 
-        selectedDate,
-        setSelectedDate,
+  profile,
+  calorieGoal,
+  proteinGoal,
+  waterGoal,
 
-        selectedDayFoods,
+  selectedDate,
+  setSelectedDate,
 
-        addFood,
-        removeFood,
+  selectedDayFoods,
 
-        totalCalories,
-        selectedDayCalories,
+  addFood,
+  removeFood,
 
-        selectedDayProtein,
-        selectedDayCarbs,
-        selectedDayFat,
+  totalCalories,
+  selectedDayCalories,
 
-        waterEntries,
-        selectedDayWater,
-        addWater,
-        removeWater,
-      }}
+  selectedDayProtein,
+  selectedDayCarbs,
+  selectedDayFat,
+
+  waterEntries,
+  selectedDayWater,
+
+  addWater,
+  removeWater,
+}}
     >
       {children}
     </FoodContext.Provider>
@@ -240,7 +296,8 @@ export function FoodProvider({ children }: FoodProviderProps) {
 }
 
 export function useFood() {
-  const context = useContext(FoodContext);
+  const context =
+    useContext(FoodContext);
 
   if (!context) {
     throw new Error(

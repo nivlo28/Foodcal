@@ -1,11 +1,18 @@
 import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { StyleSheet } from 'react-native';
+
+import {
+  createBottomTabNavigator,
+} from '@react-navigation/bottom-tabs';
+
 import { Ionicons } from '@expo/vector-icons';
 
 import HomeScreen from '../screens/HomeScreen';
 import AddFoodScreen from '../screens/AddFoodScreen';
 import HistoryScreen from '../screens/HistoryScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+
+import { useTheme } from '../contexts/ThemeContext';
 
 export type TabParamList = {
   Home: undefined;
@@ -14,32 +21,71 @@ export type TabParamList = {
   Profile: undefined;
 };
 
-const Tab = createBottomTabNavigator<TabParamList>();
+const Tab =
+  createBottomTabNavigator<TabParamList>();
 
 export default function TabsNavigator() {
+  const { colors, isDark } =
+    useTheme();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarActiveTintColor: '#000000',
-        tabBarInactiveTintColor: '#888888',
+
+        tabBarActiveTintColor:
+          colors.primary,
+
+        tabBarInactiveTintColor:
+          colors.secondaryText,
+
         tabBarStyle: {
+          backgroundColor:
+            colors.card,
+
+          borderTopColor:
+            colors.border,
+
           height: 65,
+
+          paddingTop: 6,
+
           paddingBottom: 8,
-          paddingTop: 5,
         },
 
-        tabBarIcon: ({ color, size }) => {
-          let iconName: keyof typeof Ionicons.glyphMap;
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '600',
+        },
+
+        tabBarIcon: ({
+          focused,
+          color,
+          size,
+        }) => {
+          let iconName:
+            | keyof typeof Ionicons.glyphMap;
 
           if (route.name === 'Home') {
-            iconName = 'home-outline';
-          } else if (route.name === 'AddFood') {
-            iconName = 'add-circle-outline';
-          } else if (route.name === 'History') {
-            iconName = 'bar-chart-outline';
+            iconName = focused
+              ? 'home'
+              : 'home-outline';
+          } else if (
+            route.name === 'AddFood'
+          ) {
+            iconName = focused
+              ? 'add-circle'
+              : 'add-circle-outline';
+          } else if (
+            route.name === 'History'
+          ) {
+            iconName = focused
+              ? 'bar-chart'
+              : 'bar-chart-outline';
           } else {
-            iconName = 'person-outline';
+            iconName = focused
+              ? 'person'
+              : 'person-outline';
           }
 
           return (
@@ -55,25 +101,33 @@ export default function TabsNavigator() {
       <Tab.Screen
         name="Home"
         component={HomeScreen}
-        options={{ title: 'Inicio' }}
+        options={{
+          title: 'Inicio',
+        }}
       />
 
       <Tab.Screen
         name="AddFood"
         component={AddFoodScreen}
-        options={{ title: 'Agregar' }}
+        options={{
+          title: 'Agregar',
+        }}
       />
 
       <Tab.Screen
         name="History"
         component={HistoryScreen}
-        options={{ title: 'Historial' }}
+        options={{
+          title: 'Historial',
+        }}
       />
 
       <Tab.Screen
         name="Profile"
         component={ProfileScreen}
-        options={{ title: 'Perfil' }}
+        options={{
+          title: 'Perfil',
+        }}
       />
     </Tab.Navigator>
   );
