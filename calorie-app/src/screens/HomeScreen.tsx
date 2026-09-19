@@ -10,6 +10,8 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
+  Modal,
+  TextInput,
 } from 'react-native';
 
 import {
@@ -50,6 +52,8 @@ export default function HomeScreen() {
     selectedDayWater,
     addWater,
     removeFood,
+    profile,
+    updateWeight,
   } = useFood();
 
   const [cameraVisible, setCameraVisible] =
@@ -63,6 +67,30 @@ export default function HomeScreen() {
 
   const [selectedMeal, setSelectedMeal] =
     useState<MealType>('Desayuno');
+
+    const[weightModalVisible, setWeightModalVisible] = useState(false);
+    const[weightInput, setWeightInput] = useState('');
+
+    const openWeightModal = () => {
+  setWeightInput(
+    profile.weight?.toString() ?? ''
+  );
+
+  setWeightModalVisible(true);
+};
+
+const handleSaveWeight = () => {
+  const newWeight = Number(
+    weightInput.replace(',', '.')
+  );
+
+  if (!Number.isFinite(newWeight) || newWeight <= 0) {
+    return;
+  }
+
+  updateWeight(newWeight);
+  setWeightModalVisible(false);
+};
 
   // =========================
   // FECHA
@@ -530,7 +558,12 @@ export default function HomeScreen() {
           </Text>
         </View>
 
-        <WeightCard />
+        <WeightCard
+          weight={profile.weight}
+          goal={profile.targetWeight}
+          unit="lb"
+          onAdd={openWeightModal}
+        />
 
       </ScrollView>
 
@@ -570,6 +603,123 @@ export default function HomeScreen() {
           closeFoodModal
         }
       />
+
+      <Modal
+  visible={weightModalVisible}
+  transparent
+  animationType="fade"
+  onRequestClose={() =>
+    setWeightModalVisible(false)
+  }
+>
+  <View style={styles.modalOverlay}>
+    <View
+      style={[
+        styles.weightModal,
+        {
+          backgroundColor: colors.card,
+        },
+      ]}
+    >
+      <Text
+        style={[
+          styles.modalTitle,
+          {
+            color: colors.text,
+          },
+        ]}
+      >
+        Registrar peso
+      </Text>
+
+      <Text
+        style={[
+          styles.modalSubtitle,
+          {
+            color: colors.secondaryText,
+          },
+        ]}
+      >
+        Ingresa tu peso actual
+      </Text>
+
+      <View
+        style={[
+          styles.weightInputContainer,
+          {
+            backgroundColor: colors.surface,
+            borderColor: colors.border,
+          },
+        ]}
+      >
+        <TextInput
+          style={[
+            styles.weightInput,
+            {
+              color: colors.text,
+            },
+          ]}
+          value={weightInput}
+          onChangeText={setWeightInput}
+          placeholder="Ej. 154.2"
+          placeholderTextColor={
+            colors.secondaryText
+          }
+          keyboardType="decimal-pad"
+          autoFocus
+        />
+
+        <Text
+          style={[
+            styles.weightUnit,
+            {
+              color: colors.secondaryText,
+            },
+          ]}
+        >
+          lb
+        </Text>
+      </View>
+
+      <View style={styles.modalButtons}>
+        <TouchableOpacity
+          style={[
+            styles.cancelButton,
+            {
+              backgroundColor: colors.surface,
+            },
+          ]}
+          onPress={() =>
+            setWeightModalVisible(false)
+          }
+        >
+          <Text
+            style={{
+              color: colors.secondaryText,
+              fontWeight: '700',
+            }}
+          >
+            Cancelar
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.saveButton,
+            {
+              backgroundColor: colors.primary,
+            },
+          ]}
+          onPress={handleSaveWeight}
+        >
+          <Text style={styles.saveButtonText}>
+            Guardar
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  </View>
+</Modal>
 
     </SafeAreaView>
   );
@@ -688,4 +838,76 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '800',
   },
+  modalOverlay: {
+  flex: 1,
+  backgroundColor: 'rgba(0,0,0,0.45)',
+  justifyContent: 'center',
+  alignItems: 'center',
+  paddingHorizontal: 25,
+},
+
+weightModal: {
+  width: '100%',
+  borderRadius: 24,
+  padding: 22,
+},
+
+modalTitle: {
+  fontSize: 22,
+  fontWeight: '800',
+},
+
+modalSubtitle: {
+  fontSize: 14,
+  marginTop: 5,
+  marginBottom: 20,
+},
+
+weightInputContainer: {
+  height: 55,
+  borderRadius: 14,
+  borderWidth: 1,
+  flexDirection: 'row',
+  alignItems: 'center',
+  paddingHorizontal: 15,
+},
+
+weightInput: {
+  flex: 1,
+  fontSize: 18,
+  fontWeight: '700',
+},
+
+weightUnit: {
+  fontSize: 15,
+  fontWeight: '600',
+},
+
+modalButtons: {
+  flexDirection: 'row',
+  gap: 10,
+  marginTop: 20,
+},
+
+cancelButton: {
+  flex: 1,
+  height: 48,
+  borderRadius: 13,
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+
+saveButton: {
+  flex: 1,
+  height: 48,
+  borderRadius: 13,
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+
+saveButtonText: {
+  color: '#FFFFFF',
+  fontSize: 15,
+  fontWeight: '800',
+},
 });

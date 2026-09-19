@@ -44,6 +44,8 @@ type FoodContextType = {
 
   profile: Record<string, any>;
 
+  updateWeight: (weight: number) => void;
+
   calorieGoal: number;
   proteinGoal: number;
   waterGoal: number;
@@ -91,12 +93,20 @@ export function FoodProvider({
   const [selectedDate, setSelectedDate] =
     useState(new Date());
 
-    const profile = {
-      name: '',
-      age: 18,
-      height: 175,
-      weight: 153.3,
-   };
+   const [profile, setProfile] = useState({
+    name: '',
+    age: 18,
+    height: 175,
+    weight: 153.3,
+    targetWeight: 150
+   });
+
+   const updateWeight = (weight: number) => {
+  setProfile((currentProfile) => ({
+    ...currentProfile,
+    weight,
+  }));
+  };
 
    const calorieGoal = 2400;
    const proteinGoal = 180;
@@ -264,6 +274,7 @@ export function FoodProvider({
   foods,
 
   profile,
+  updateWeight,
   calorieGoal,
   proteinGoal,
   waterGoal,
